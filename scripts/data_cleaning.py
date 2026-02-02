@@ -1,35 +1,23 @@
-"""
-Customer Churn Analysis — Data Cleaning & EDA
-Day 1–2: Load, clean, segment, and export for Power BI.
-Dataset: Telco Customer Churn (e.g. Kaggle WA_Fn-UseC_-Telco-Customer-Churn.csv)
-Run from project root: python scripts/01_data_cleaning_eda.py
-"""
-
 import pandas as pd
-import numpy as np
 
-# Paths (run from project root)
-RAW_PATH = "data/WA_Fn-UseC_-Telco-Customer-Churn.csv"  # Kaggle default name
+RAW_PATH = "data/WA_Fn-UseC_-Telco-Customer-Churn.csv" 
 CLEANED_PATH = "data/churn_cleaned.csv"
 
 def load_data():
-    """Load raw churn CSV. Place your file in data/ folder."""
+    """Load data"""
     try:
         return pd.read_csv(RAW_PATH)
     except FileNotFoundError:
         raise FileNotFoundError(
-            f"Put the Telco Churn CSV in the 'data/' folder as: {RAW_PATH}\n"
-            "Download: https://www.kaggle.com/datasets/blastchar/telco-customer-churn"
+            f"Put the churn file"
         )
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Handle missing values, duplicates, and create churn flag."""
+    """Handle missing values, duplicates."""
     df = df.copy()
 
-    # TotalCharges is often stored as object with empty strings for new customers
     df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
 
-    # Drop rows with missing critical columns (or impute: e.g. TotalCharges = 0 for tenure 0)
     df["TotalCharges"] = df["TotalCharges"].fillna(0)
 
     # Remove duplicates
@@ -38,7 +26,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     if len(df) < before:
         print(f"  Removed {before - len(df)} duplicate rows.")
 
-    # Ensure churn flag exists (Yes/No or 1/0)
+    # Ensure churn flag exists
     if "Churn" not in df.columns:
         raise ValueError("Dataset must have a 'Churn' column.")
     df["ChurnFlag"] = (df["Churn"].astype(str).str.strip().str.lower() == "yes").astype(int)
@@ -88,17 +76,12 @@ def run_eda_summary(df: pd.DataFrame) -> None:
     print()
 
 def main():
-    print("Loading data...")
     df = load_data()
-    print("Cleaning...")
     df = clean_data(df)
-    print("Adding segments...")
     df = add_segments(df)
     run_eda_summary(df)
 
     df.to_csv(CLEANED_PATH, index=False)
-    print(f"Saved cleaned data to: {CLEANED_PATH}")
-    print("Use this file in Power BI for your dashboard.")
 
 if __name__ == "__main__":
     main()

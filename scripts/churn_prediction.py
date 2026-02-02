@@ -1,10 +1,3 @@
-"""
-Optional: Basic churn prediction (Logistic Regression).
-Run only if time allows. No deployment required.
-Requires: churn_cleaned.csv from 01_data_cleaning_eda.py
-Run from project root: python scripts/02_churn_prediction.py
-"""
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -17,9 +10,9 @@ def main():
     try:
         df = pd.read_csv(CLEANED_PATH)
     except FileNotFoundError:
-        print("Run 01_data_cleaning_eda.py first to create churn_cleaned.csv")
+        print("Run data Cleaning file")
         return
-    # Use numeric/categorical columns only (simplified)
+    # Use numeric/categorical columns
     cat_cols = ["Contract", "PaymentMethod", "InternetService", "TenureBucket"]
     num_cols = [c for c in ["tenure", "Tenure", "MonthlyCharges", "TotalCharges"] if c in df.columns]
 
@@ -34,7 +27,7 @@ def main():
     model = LogisticRegression(max_iter=1000, random_state=42)
     model.fit(X_train, y_train)
     preds = model.predict(X_test)
-    print("Accuracy:", accuracy_score(y_test, preds).round(4))
+    print("Accuracy:", round(accuracy_score(y_test, preds), 4))
     print(classification_report(y_test, preds, target_names=["No Churn", "Churn"]))
 
 if __name__ == "__main__":
